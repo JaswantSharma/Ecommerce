@@ -202,3 +202,253 @@ void Customer::registerCustomer() {
     //called the loginMenu() function after register successfully
     loginMenu();
 }
+
+//customerMenu():To show the cutomer menu
+void Customer::customerMenu() {
+
+    cout << "Welcome " << this->username << " to Customer Menu" << endl;
+    do {
+        cout << "Please Enter your choice" << endl;
+        cout << "\n1.Display Items. \n2.View Cart \n3.Place Order \n4.Exit\n" << endl;
+
+        //ask to the customer 
+        //that please select the menu following option which he/she wants
+        int choice;
+        cin >> choice;
+        switch (choice) {
+        case 1:displayItems();
+            break;
+        case 2:viewcart();
+            break;
+        case 3:placeorder();
+            break;
+        case 4:return;
+            break;
+        default:
+            cout << "Enter valid choice " << endl;
+            break;
+        }
+    } while (1);
+}
+
+//displayItems(): displaying the products information which are avaialble in the store
+void Customer::displayItems() {
+
+    char filename[30] = "proName.txt";//proName - product name
+
+    char filename2[30] = "proPrice.txt";//proPrice - Product price
+
+    char filename3[30] = "proQuant.txt";//proQuant- product quantity
+
+    //creating object for ifstream
+    ifstream display;
+
+    //open the file or read from file
+    display.open(filename);
+    cout << "\n\n";
+    cout << endl << "----------------------------------------------------------------------" << endl;
+    cout << left << setw(20) << "Product Id";
+    cout << left << setw(30) << "Product Name";
+    cout << left << setw(40) << "Price";
+    cout << endl << "----------------------------------------------------------------------" << endl;
+    cout << endl;
+    string proId, proName;
+    while (display >> proId >> proName) {
+        string price = getvalue(filename2, proId);
+
+        cout << left << setw(20) << proId;
+        cout << left << setw(30) << proName;
+        cout << left << setw(40) << price;
+        cout << endl;
+
+    }
+
+
+
+    display.close();
+
+    cout << "\n\n Enter product Id of the Product you want to Add to Cart" << endl;
+
+    string productID;
+    cin >> productID;
+
+    ifstream check;
+    string key;
+    //check & read from product name file
+    check.open("proName.txt");
+    bool flag = false;
+
+    while (check >> key) {
+        if (productID == key) {
+            flag = true;
+        }
+    }
+    check.close();
+
+
+    if (!flag) {
+        cout << "Invalid product ID" << endl;
+        return;
+    }
+    else {
+        cout << "Enter the quantity of the product" << endl;
+        int quant;
+        cin >> quant;
+        char filename[30] = "proQuant.txt";
+
+        string proCount = getvalue(filename, productID);
+
+        //here the stoi() function is used to  converts a string to an integer value.
+        int proCountInt = stoi(proCount);
+
+        //check the product count int is graeter then to quantity or not
+        if (proCountInt >= quant) {
+            //call to addcart function
+            addtocart(productID, quant);
+        }
+        else {
+            cout << "Not enough Pieces of this product " << endl;
+            return;
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+}
+
+//addtocart:-cutomer can add the product which he\she want to buy
+void Customer::addtocart(string proId, int quant) {
+
+
+    int pos;
+    int pos2;
+    string key;
+    string proIdinFile;
+    string count;
+    string val_str;
+    int value;
+
+
+    bool flag = true;
+
+    //read from file
+    ifstream check;
+    check.open("cart.txt");
+    string line;
+
+    //write from file
+    ofstream fout("cart.tmp");
+
+    while (getline(check, line)) {
+        pos = line.find(" ");//finding space
+
+        key = line.substr(0, pos);//get username
+
+        val_str = line.substr(pos + 1);//get value
+
+        pos2 = val_str.find(" ");
+
+        proIdinFile = val_str.substr(0, pos2);
+
+        count = val_str.substr(pos2 + 1);
+
+
+        if (key == this->username && proIdinFile == proId) {
+            int intofCount = stoi(count);
+            quant += intofCount;
+            string stringofQuant = to_string(quant);
+            count = stringofQuant;
+            flag = false;
+        }
+        fout << key << ' ' << proIdinFile << ' ' << count << endl;
+
+    }
+
+    if (flag) {
+        fout << this->username << ' ' << proId << ' ' << quant << endl;
+    }
+
+    check.close();
+    fout.close();
+
+    //removing original cart file
+    remove("cart.txt");
+
+    //copying the updated date in temporary file and renamed it  to cart.tmp
+    rename("cart.tmp", "cart.txt");
+
+    cout << "Product added to cart successfully" << endl;
+}
+
+
+
+//removefromcart- it is used to remove the product from cart ,
+//if the customer not intrested for buy a product.
+void Customer::removefromcart(string proId, int quant) {
+
+    int pos;
+    int pos2;
+    string key;
+    string proIdinFile;
+    string count;
+    string val_str;
+    int value;
+
+
+    bool flag = true;
+    //creating object for ifstream
+    ifstream check;
+    check.open("cart.txt");
+    string line;
+
+    ofstream fout("cart.tmp");
+
+
+    while (getline(check, line)) {
+        pos = line.find(" ");//finding space
+
+        key = line.substr(0, pos);//get username
+
+        val_str = line.substr(pos + 1);//get value
+
+        pos2 = val_str.find(" ");
+
+        proIdinFile = val_str.substr(0, pos2);
+
+        count = val_str.substr(pos2 + 1);
+
+        if (key == this->username && proIdinFile == proId) {
+
+            //the stoi() function converts a string to an integer value
+            int intofCount = stoi(count);
+            intofCount -= quant;
+
+            string stringofQuant = to_string(intofCount);
+            count = stringofQuant;
+
+        }
+
+        if (count != "0") {
+
+            fout << key << ' ' << proIdinFile << ' ' << count << endl;
+        }
+    }
+
+    check.close();
+    fout.close();
+
+    //deleted the original file or old file
+    remove("cart.txt");
+
+    //rename old file to temporary file
+    rename("cart.tmp", "cart.txt");
+
+    cout << "Product remvoed from cart successfully" << endl;
+}
