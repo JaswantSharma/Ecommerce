@@ -26,6 +26,8 @@ int main() {
 		}
 		else if (choice == 2) {
 
+			Customer c;
+			c.loginMenu();
 
 		}
 		else if (choice == 3) {
