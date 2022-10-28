@@ -16,6 +16,7 @@ Customer::Customer(string user) {
 //getvalue - helping function for take values from the file
 string Customer::getvalue(char* filename, string user) {
 
+
     int pos;
     string key;
     string val_str;
