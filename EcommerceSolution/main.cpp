@@ -1,5 +1,6 @@
 #include <iostream>
 #include "customer.h"
+#include"admin.h"
 #include<string>
 
 
