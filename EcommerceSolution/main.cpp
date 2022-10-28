@@ -1,5 +1,9 @@
 #include <iostream>
+#include "customer.h"
 #include<string>
+
+
+
 
 using namespace std;
 
@@ -22,6 +26,8 @@ int main() {
 		}
 		else if (choice == 2) {
 
+			Customer c;
+			c.loginMenu();
 
 		}
 		else if (choice == 3) {
