@@ -452,3 +452,186 @@ void Customer::removefromcart(string proId, int quant) {
 
     cout << "Product remvoed from cart successfully" << endl;
 }
+
+//used to give the confirmation to the user that your order is placed 
+void Customer::placeorder() {
+
+    int pos;
+    int pos2;
+    string key;
+    string proIdinFile;
+    string count;
+    string val_str;
+    int value;
+
+
+    bool flag = true;
+
+    ifstream check;
+
+    //read from file
+    check.open("cart.txt");
+    string line;
+
+    //write to file
+    ofstream fout("cart.tmp");
+
+    //proQuant - product quantity 
+    char filename[30] = "proQuant.txt";
+    char tempfile[30] = "proQuant.tmp";
+
+    while (getline(check, line)) {
+        pos = line.find(" ");//finding space
+
+        key = line.substr(0, pos);//get username
+
+        val_str = line.substr(pos + 1);//get value
+
+        pos2 = val_str.find(" ");
+
+        proIdinFile = val_str.substr(0, pos2);
+
+        count = val_str.substr(pos2 + 1);
+
+
+        if (this->username == key) {
+            string proQuant = getvalue(filename, proIdinFile);
+            int proQuantint = stoi(proQuant);
+            int countInt = stoi(count);
+            proQuantint -= countInt;
+            proQuant = to_string(proQuantint);
+            setvalue(filename, tempfile, proIdinFile, proQuant);
+        }
+        else {
+            fout << key << ' ' << proIdinFile << ' ' << count << endl;
+        }
+
+    }
+
+
+
+    check.close();
+    fout.close();
+
+    //remove the original cart file before deleting the product 
+    remove("cart.txt");
+
+    //rename old file to updated file(temporary file- cart.tmp)
+    rename("cart.tmp", "cart.txt");
+
+    cout << this->username << "Your Order was placed successfully" << endl;
+
+
+
+
+}
+
+
+//view cart:- displaying the product list or information which have brought by the customer
+void Customer::viewcart() {
+
+    int pos;
+    int pos2;
+    string key;
+    string proIdinFile;
+    string count;
+    string val_str;
+    int value;
+
+
+    bool flag = true;
+
+    ifstream check;
+    check.open("cart.txt");
+    string line;
+
+    //initially total price is assigned to zero
+    int totalprice = 0;
+
+    //initially discount assigned to zero
+    int discountPrice = 0;
+
+    //show the particular -user view cart(which are avialable in the username password file)
+    cout << this->username << " your cart has the following items" << endl;
+    cout << "\n\n";
+    cout << endl << "----------------------------------------------------------------------" << endl;
+
+    //setw(length): used to set the filed
+    cout << left << setw(20) << "Product Id";
+    cout << left << setw(30) << "Product Name";
+    cout << left << setw(40) << "Quantity";
+    cout << endl << "----------------------------------------------------------------------" << endl;
+    cout << endl;
+    while (getline(check, line)) {
+        pos = line.find(" ");//finding space
+
+        key = line.substr(0, pos);//get username
+
+        val_str = line.substr(pos + 1);//get value
+
+        pos2 = val_str.find(" ");
+
+        proIdinFile = val_str.substr(0, pos2);
+
+        count = val_str.substr(pos2 + 1);
+
+        //take file which are already exist in our system
+        char filename[30] = "proPrice.txt";
+        char filename2[30] = "proName.txt";
+        char filename3[30] = "proDiscount.txt";
+
+        if (key == this->username) {
+
+            string price = getvalue(filename, proIdinFile);
+            string proName = getvalue(filename2, proIdinFile);
+            string discount = getvalue(filename3, proIdinFile);
+            int intforCount = stoi(count);
+
+            cout << left << setw(20) << proIdinFile;
+            cout << left << setw(30) << proName;
+            cout << left << setw(40) << count;
+            cout << endl;
+
+            //the stoi() function converts a string to an integer value
+            int priceInt = stoi(price);
+
+            if (discount != "-1") {
+                int intDiscount = stoi(discount);
+
+            }
+            totalprice = totalprice + intforCount * priceInt;
+        }
+
+    }
+
+
+
+    //displaying the total cost of the products
+    cout << "Total Cost is " << totalprice << endl;
+    check.close();
+
+    //the customer can remove only the product only when total price will be greater then zero
+    if (totalprice > 0) {
+        cout << "\n\nDo you want to remove anything" << endl;
+        cout << "\n\nPress y for YES and N for NO. " << endl;
+        char choice;
+        cin >> choice;
+
+        //y  - yes and n- no
+        if (choice == 'y' || choice == 'Y') {
+            cout << "Enter product id of the product you want to remove" << endl;
+            string productid;
+            cin >> productid;
+
+            //ask to customer that how much quantity the customer want to remove from cart
+            cout << "Enter Quantity of the product you want to remove" << endl;
+            int quant;
+            cin >> quant;
+
+            //called removefromcart function
+            removefromcart(productid, quant);
+        }
+    }
+
+
+}
