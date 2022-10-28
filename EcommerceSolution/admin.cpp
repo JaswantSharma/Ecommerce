@@ -1,6 +1,7 @@
 #include<iostream>
 #include<fstream>
 #include<string>
+#include<conio>
 #include"admin.h"
 using namespace std;
 //this function is used to get the value from the file
