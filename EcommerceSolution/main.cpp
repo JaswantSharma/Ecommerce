@@ -23,7 +23,8 @@ int main() {
 		cin >> choice;
 		if (choice == 1)
 		{
-
+			Admin a;
+			a.login();
 		}
 		else if (choice == 2) {
 
